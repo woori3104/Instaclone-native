@@ -44,7 +44,7 @@ export default function Welcome({ navigation }: Props<"Welcome">) {
     const goToLogIn = () => navigation.navigate("LogIn");
     return (
       <Container>
-        <Logo resizeMode="cover" source={require("../assets/logo.png")} />
+        <Logo resizeMode="center" source={require("../assets/logo.png")} />
           <CreateAccount  disabled={ false } onPress={goToCreateAccount}>
             <CreateAccountText>Create Account</CreateAccountText>
           </CreateAccount>

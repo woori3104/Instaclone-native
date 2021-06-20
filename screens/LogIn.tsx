@@ -9,16 +9,14 @@ import { isLoggedInVar } from "../apollo";
 import { gql, useMutation } from "@apollo/client";
 
 const LOGIN_MUTATION = gql`
-  mutation login($username: String!, $password: String!) {
-    login(username: $username, password: $password) {
+  mutation login($userName: String!, $password: String!) {
+    login(userName: $userName, password: $password) {
       ok
       token
       error
     }
   }
 `;
-
-
 
 export default function LogIn({ navigation }: Props<"LogIn">) {
   const { register, handleSubmit, setValue, watch } = useForm();
@@ -31,7 +29,7 @@ export default function LogIn({ navigation }: Props<"LogIn">) {
       isLoggedInVar(true);
     }
   };
-  const [logInMutation, { loading }] = useMutation(LOGIN_MUTATION, {
+  const [logInMutation, { loading, error }] = useMutation(LOGIN_MUTATION, {
     onCompleted,
   });
 
@@ -49,7 +47,7 @@ export default function LogIn({ navigation }: Props<"LogIn">) {
     }
   };
   useEffect(() => {
-    register("username", {
+    register("userName", {
       required: true,
     });
     register("password", {
@@ -65,7 +63,7 @@ export default function LogIn({ navigation }: Props<"LogIn">) {
         placeholderTextColor="gray"
         style={{ backgroundColor: "white", width: "100%" }}
         onSubmitEditing={() => onNext(passwordRef)}
-        onChangeText={(text) => setValue("username", text)}
+        onChangeText={(text) => setValue("userName", text)}
       />
       <TextInput
         placeholder="Password"
@@ -78,7 +76,7 @@ export default function LogIn({ navigation }: Props<"LogIn">) {
       <AuthButton
         text="Log In"
         loading={loading}
-        disabled={!watch("username") || !watch("password")}
+        disabled={!watch("userName") || !watch("password")}
         onPress={handleSubmit(onValid)}
       />
     </AuthLayout>

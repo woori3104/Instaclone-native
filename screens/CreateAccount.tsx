@@ -3,21 +3,62 @@ import AuthLayout from "../components/auth/AuthLayout";
 import AuthButton from "../components/auth/AuthButton";
 import { TextInput } from "../components/auth/AuthShared";
 import { useEffect } from "react";
+import { gql, useMutation } from "@apollo/client";
 import { useForm } from "react-hook-form";
 
+const CREATE_ACCOUNT_MUTATION = gql`
+  mutation createAccount(
+    $firstName: String!
+    $lastName: String
+    $username: String!
+    $email: String!
+    $password: String!
+  ) {
+    createAccount(
+      firstName: $firstName
+      lastName: $lastName
+      username: $username
+      email: $email
+      password: $password
+    ) {
+      ok
+      error
+    }
+  }
+`;
 export default function CreateAccount() {
-  const { register, handleSubmit, setValue } = useForm();
-  const lastNameRef = useRef();
-  const usernameRef = useRef();
-  const emailRef = useRef();
-  const passwordRef = useRef();
+  const { register, handleSubmit, setValue, setError, getValues } = useForm();
+  const lastNameRef = useRef(null);
+  const usernameRef = useRef(null);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
 
-  const onNext = (nextOne:any) => {
+const onNext = (nextOne: React.RefObject<any>) => {
     nextOne?.current?.focus();
   };
-
-  const onValid = (data:any) => {
+  const onCompleted = (data: any) => {
+    const { userName, password } = getValues();
+    const {
+      createAccount: { ok, error },
+    } = data;
     console.log(data);
+    
+    if (!ok) {
+      return setError("result", {
+        message: error,
+      });
+    }
+  };
+  const [createAccount, { loading }] = useMutation(CREATE_ACCOUNT_MUTATION, {
+    onCompleted,
+  });
+
+  const onSubmitValid = (data: any) => {
+    createAccount({
+      variables: {
+        ...data,
+      },
+    });
   };
 
   useEffect(() => {
@@ -78,13 +119,12 @@ export default function CreateAccount() {
         lastOne={true}
         placeholderTextColor={"rgba(255, 255, 255, 0.6)"}
         onChangeText={(text) => setValue("password", text)}
-        onSubmitEditing={handleSubmit(onValid)}
       />
       <AuthButton
         text="Create Account"
         disabled={false}
         loading={false}
-        onPress={handleSubmit(onValid)}
+        onPress={handleSubmit(onSubmitValid)}
       />
     </AuthLayout>
   );

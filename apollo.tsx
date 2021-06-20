@@ -7,24 +7,31 @@ import {
 import { setContext } from "@apollo/client/link/context";
 import { createUploadLink } from "apollo-upload-client";
 import { onError } from "@apollo/client/link/error";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TOKEN = "token";
 export const isLoggedInVar = makeVar(Boolean(localStorage.getItem(TOKEN)));
-
-export const logUserIn = (token:string) => {
-  localStorage.setItem(TOKEN, token);
-  isLoggedInVar(true);
-};
+export const tokenVar = makeVar("");
 
 export const logUserOut = () => {
   localStorage.removeItem(TOKEN);
   window.location.reload();
 };
 
+export const logUserIn = async (token:string) => {
+  await AsyncStorage.multiSet([
+    ["token", JSON.stringify(token)],
+    ["loggedIn", JSON.stringify("yes")],
+  ]);
+  isLoggedInVar(true);
+  tokenVar(token);
+};
+
+
 export const darkModeVar = makeVar(false);
 const httpLinkOptions = {
   fetch,
-    uri: "http://woori-nomadcoffe-backend.herokuapp.com/graphql",
+    uri: "http://localhost:4000/graphql",
 }
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors)
